@@ -384,13 +384,13 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     return ax
 
 
-plotting accuracy and loss graphs #
+# plotting accuracy and loss graphs #
 
 plot_model_results(train_acc_log, val_acc_log, 
                    train_loss_log, val_loss_log)
 
 
-confusion matrix #
+# confusion matrix #
 class_names = [0,1,2,3,4,5,6,7,8,9]
 pred_test = predict(network, X_test)   # using test set (finally!)
 plot_confusion_matrix(y_test, pred_test, classes=class_names, title="Confusion Matrix")
