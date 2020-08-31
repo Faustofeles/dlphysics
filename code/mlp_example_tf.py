@@ -63,7 +63,13 @@ def forwardpass(X):
 logits = forwardpass(X)
 # loss_op = tf.reduce_mean(tf.losses.mean_squared_error(predictions=fpass, labels=Y))
 loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=Y))
+
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate)
+optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate)
+optimizer = tf.train.AdadeltaOptimizer(learning_rate=learning_rate)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+
+
 train_op = optimizer.minimize(loss_op)
 
 ### METRICS LOGS ###
@@ -89,7 +95,7 @@ with tf.Session() as sess:
     # initialize model's global variables
     sess.run(init)
     
-    for e in range(epochs):
+    for e in range(epochs):  
         arr = np.arange(X_train.shape[0])
         np.random.shuffle(arr) # shuffled indices
         for i in range(0, X_train.shape[0], batchsize):
