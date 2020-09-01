@@ -1,25 +1,37 @@
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
 
 
-def load_mnist(flatten=False, one_hot=False):
+def load_mnist(flatten=False, one_hot=False, normalize=False):
     (X_train, y_train), (X_test, y_test) = keras.datasets.mnist.load_data()
     # normalize x
-    X_train = X_train.astype(float) / 255.
-    X_test = X_test.astype(float) / 255.
+    if normalize:
+        X_train = X_train.astype(float) / 255.
+        X_test = X_test.astype(float) / 255.
     # we reserve the last 10000 training examples for validation
     X_train, X_val = X_train[:-10000], X_train[-10000:]
     y_train, y_val = y_train[:-10000], y_train[-10000:]
+    
     if flatten:
         X_train = X_train.reshape([X_train.shape[0], -1])
         X_val = X_val.reshape([X_val.shape[0], -1])
         X_test = X_test.reshape([X_test.shape[0], -1])
+    
     if one_hot:
         y_train = one_hot_encode(y_train)
         y_val = one_hot_encode(y_val)
         y_test = one_hot_encode(y_test)
+    
     return X_train, y_train, X_val, y_val, X_test, y_test
+
+
+def normalize(X):
+    return preprocessing.normalize(X)
+
+def standardize(X):
+    return preprocessing.scale(X)
 
 def one_hot_encode(labels):
     oh = np.zeros((len(labels), 10))
@@ -33,7 +45,7 @@ def one_hot_encode(labels):
 '''
 
 '''
-def plot_model_results(train_log, test_log, train_loss, test_loss, params=False):
+def plot_model_results(train_log, val_log, train_loss, val_loss, params=False):
     import seaborn as sns   # make it pretty
     with sns.axes_style("darkgrid"):
         
@@ -43,16 +55,16 @@ def plot_model_results(train_log, test_log, train_loss, test_loss, params=False)
 
         # accuracy metrics
         axes[0].plot(train_log, label='train accuracy')
-        axes[0].plot(test_log, label='test accuracy')
-        axes[0].set_title("Train Accuracy: %.3f"%train_log[-1])
+        axes[0].plot(val_log, label='val accuracy')
+        axes[0].set_title("Train Accuracy: %.3f | Val Accuracy: %.3f"%( train_log[-1], val_log[-1]))
         axes[0].set_ylabel("Accuracy")
         axes[0].set_xlabel("Epoch")
         axes[0].legend(loc='best')
 
         # loss metrics
         axes[1].plot(train_loss, label='train loss')
-        axes[1].plot(test_loss, label='test loss')
-        axes[1].set_title("Train Loss: %.5f"%train_loss[-1])
+        axes[1].plot(val_loss, label='val loss')
+        axes[1].set_title("Train Loss: %.5f | Val Loss: %.5f"%(train_loss[-1], val_loss[-1]))
         axes[1].set_ylabel("Loss")
         axes[1].set_xlabel("Epoch")
         axes[1].legend(loc='best')
